@@ -11,7 +11,7 @@ class BipartiteG{
     private:
         int l, r;                               //sizes of left and right paritions
         std::vector<std::vector<int> > left;    //adjacency list for left side nodes
-        std::vector<std::vector<int> > right;   //adjacency list for right side nodes
+        //std::vector<std::vector<int> > right;   //adjacency list for right side nodes
         int *leftpair, *rightpair, *dist;       //arrays used for finding max cardinality matching
 
     public:
@@ -24,12 +24,12 @@ class BipartiteG{
             r = rightsize;
             for (unsigned int i = 0; i < r; ++i){
                 std::vector<int> adjacencyList;
-                right.push_back(adjacencyList);
+                //right.push_back(adjacencyList);
             }
         }
         void addNewEdge(int leftnode, int rightnode){
             left.at(leftnode - 1).push_back(rightnode);
-            right.at(rightnode - 1).push_back(leftnode);
+            //right.at(rightnode - 1).push_back(leftnode);
         }
 
         bool bfs();
