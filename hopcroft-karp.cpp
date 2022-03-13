@@ -149,6 +149,7 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
         else 
             dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
     }
+    cilk_sync;
     for(int i = 0; i < nworkers; ++i){
         for (int j = 0; j < queue_vals.at(i).size(); ++j){
             alt_level_graph.push(queue_vals.at(i).at(j));
