@@ -9,6 +9,9 @@
 #include <stdio.h>
 #include "get_time.h"
 
+int nworkers = 4;
+export CILK_NWORKERS = nworkers;
+
 class BipartiteG{   
     private:
         int l, r;                               //sizes of left and right paritions
@@ -109,13 +112,23 @@ int main(){
 bool BipartiteG::bfs(){                       //construct the alternating graph that reveals any augmenting paths
     std::queue<int> alt_level_graph;          //my alternating level graph stores the free vertices of left partition
     dist[0] = std::numeric_limits<int>::max();
+    std::vector<std::vector< <int> > > queue_vals;
+    for(int i = 0; i < nworkers; ++i){
+        std::vector<int> curr;
+        queue_vals.push_back(curr);
+    }
     cilk_for (int i = 1; i <= l; ++i){   // at top of alternating level graph, everything has distance 0
         if (leftpair[i] == 0){  
             dist[i] = 0;
-            alt_level_graph.push(i);                        //populate top level of alternating level tree with free vertices of left partition
+            queue_vals.at(i).push_back(i);                        //populate top level of alternating level tree with free vertices of left partition
         }
         else 
             dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
+    }
+    for(int i = 0; i < nworkers; ++i){
+        for (int j = 0; j < queue_vals.at(i).size(); ++j){
+            alt_level_graph.push(queue_vals.at(i).at(j));
+        }
     }
 
     while (!alt_level_graph.empty()) {   //while there are still free left vertices
