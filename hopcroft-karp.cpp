@@ -12,6 +12,8 @@
 int nworkers = 4;
 // export CILK_NWORKERS = nworkers;
 
+
+
 class BipartiteG{   
     private:
         int l, r;                               //sizes of left and right paritions
@@ -38,6 +40,16 @@ class BipartiteG{
         }
 
         bool bfs();
+        void bfs_helper(int start_idx, int end_idx, vector<int> & vals){
+            for (int i =  start_idx; i <= end_idx; ++i){   // at top of alternating level graph, everything has distance 0
+                if (leftpair[i] == 0){  
+                    dist[i] = 0;
+                    vals.push_back(i);                        //populate top level of alternating level tree with free vertices of left partition
+                }
+            else 
+                dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
+            }
+        }
         bool dfs(int leftnode);
         int hopcroftkarp(){
             rightpair = new int[r + 1];
@@ -117,38 +129,11 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
         std::vector<int> curr;
         queue_vals.push_back(curr);
     }
-    for (int i = 1; i <= l / nworkers; ++i){   // at top of alternating level graph, everything has distance 0
-        if (leftpair[i] == 0){  
-            dist[i] = 0;
-            queue_vals.at(0).push_back(i);                        //populate top level of alternating level tree with free vertices of left partition
-        }
-        else 
-            dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
-    }
-    cilk_spawn for (int i = l / nworkers + 1; i <= 2 *  l / nworkers; ++i){   // at top of alternating level graph, everything has distance 0
-        if (leftpair[i] == 0){  
-            dist[i] = 0;
-            queue_vals.at(1).push_back(i);                        //populate top level of alternating level tree with free vertices of left partition
-        }
-        else 
-            dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
-    }
-    cilk_spawn for (int i = 2 * l / nworkers + 1; i <= 3 *  l / nworkers; ++i){   // at top of alternating level graph, everything has distance 0
-        if (leftpair[i] == 0){  
-            dist[i] = 0;
-            queue_vals.at(2).push_back(i);                        //populate top level of alternating level tree with free vertices of left partition
-        }
-        else 
-            dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
-    }
-    cilk_spawn for (int i = 3 * l / nworkers + 1; i <= 4 *  l / nworkers; ++i){   // at top of alternating level graph, everything has distance 0
-        if (leftpair[i] == 0){  
-            dist[i] = 0;
-            queue_vals.at(3).push_back(i);                        //populate top level of alternating level tree with free vertices of left partition
-        }
-        else 
-            dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
-    }
+    bfs_helper(1,  l / nworkers, queue_vals.at(0));   // at top of alternating level graph, everything has distance 0
+        
+    cilk_spawn bfs_helper(l / nworkers + 1, 2 *  l / nworkers, queue_vals.at(1));
+    cilk_spawn bfs_helper( 2 * l / nworkers + 1, 3 *  l / nworkers, queue_vals.at(2));
+    cilk_spawn bfs_helper(3 * l / nworkers + 1, 4 *  l / nworkers, queue_vals.at(3));
     cilk_sync;
     for(int i = 0; i < nworkers; ++i){
         for (int j = 0; j < queue_vals.at(i).size(); ++j){
@@ -195,3 +180,5 @@ bool BipartiteG::dfs(int leftnode){         //applies augmenting paths
         return true;
 
 }
+
+
