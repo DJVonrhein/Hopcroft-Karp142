@@ -112,7 +112,7 @@ int main(){
 bool BipartiteG::bfs(){                       //construct the alternating graph that reveals any augmenting paths
     std::queue<int> alt_level_graph;          //my alternating level graph stores the free vertices of left partition
     dist[0] = std::numeric_limits<int>::max();
-    std::vector<std::vector< <int> > > queue_vals;
+    std::vector<std::vector <int> > queue_vals;
     for(int i = 0; i < nworkers; ++i){
         std::vector<int> curr;
         queue_vals.push_back(curr);
