@@ -147,7 +147,7 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
 
     cilk_sync;
     for(int i = 0; i < nworkers; ++i){
-        for (int j = 0; j < nworkers; ++j){
+        for (int j = 0; j < l / nworkers; ++j){
             if(queue_vals.at(i)[j])
                 alt_level_graph.push(queue_vals.at(i)[j]);
             else
