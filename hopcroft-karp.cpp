@@ -1,76 +1,157 @@
 
 #include <iostream>
 #include <vector>
+#include <queue>
+#include <limits>
+#include <cstdlib>
+#include <stdio.h>
+#include "get_time.h"
 
-int main(){
-    int l, r, m; // l = num vertices in left partition, r = num vertices in right partition, m = num undirected edges
-    std::cin >> l >> r >> m;
-    std::cin.ignore();
-    int person1, person2;
-    //take bipartite graph as adjacency lists
-    std::vector<std::vector<int> > left;            //each left partition node has an adjacency list  
-    for (unsigned int i = 0; i < l; ++i){
-        std::vector<int> adjacencyList;
-        left.push_back(adjacencyList);
-    }
-    std::vector<std::vector<int> > right;            //each right partition node has an adjacency list  
-    for (unsigned int i = 0; i < r; ++i){
-        std::vector<int> adjacencyList;
-        right.push_back(adjacencyList);
-    }
+class BipartiteG{   
+    private:
+        int l, r;                               //sizes of left and right paritions
+        std::vector<std::vector<int> > left;    //adjacency list for left side nodes
+        std::vector<std::vector<int> > right;   //adjacency list for right side nodes
+        int *leftpair, *rightpair, *dist;       //arrays used for finding max cardinality matching
 
-    for (unsigned int i = 0; i < m; ++i){
-        std::cin >> person1 >> person2;
-        std::cin.ignore();
-        left.at(person1 - 1).push_back(person2);    //graph is unweighted and undirected
-        right.at(person2 - 1).push_back(person1);
-    }
-    //initalize M to be an empty matching
-    int rightincluded[r];
-    for(unsigned i = 0; i < r; ++i){
-        rightincluded[i] = 0;
-    }
-    std::vector<std::pair<int, int> > M;
-    int leftincluded[l]; 
-    for(unsigned i = 0; i < l; ++i){                    //first matching
-        leftincluded[i] = 0;
-        std::pair<int, int> startingEdge(i + 1, -1);
-        for(unsigned j = 0; j < left.at(i).size();++j){
-            if(!rightincluded[left.at(i).at(j) - 1]){
-                rightincluded[left.at(i).at(j) - 1] = 1;
-                startingEdge.second = left.at(i).at(j);
-                break;
+    public:
+        BipartiteG(int leftsize, int rightsize){    
+            l = leftsize; 
+            for (unsigned int i = 0; i < l; ++i){
+                std::vector<int> adjacencyList;
+                left.push_back(adjacencyList);
+            }
+            r = rightsize;
+            for (unsigned int i = 0; i < r; ++i){
+                std::vector<int> adjacencyList;
+                right.push_back(adjacencyList);
             }
         }
-        
-        M.push_back(startingEdge);
+        void addNewEdge(int leftnode, int rightnode){
+            left.at(leftnode - 1).push_back(rightnode);
+            right.at(rightnode - 1).push_back(leftnode);
+        }
+
+        bool bfs();
+        bool dfs(int leftnode);
+        int hopcroftkarp(){
+            rightpair = new int[r + 1];
+            for(unsigned i = 1; i <= r; ++i){
+                rightpair[i] = 0;               // initially 0 (not in matching)
+            }
+            leftpair = new int[l + 1]; 
+            for(unsigned i = 0; i <= l; ++i){                    
+                leftpair[i] = 0;                // initially 0 (not in matching)
+            }
+            dist = new int[l + 1];
+            
+            int max_cardinality = 0;
+
+            while(bfs()){                       //while we can make an alternating level tree with augmenting paths
+                for (int i = 1; i <= l; ++i){
+                    if(!leftpair[i] && dfs(i)){     //if the vertex is free and can be augmented, do so and increment cardinality 
+                        ++max_cardinality;
+                    }
+                }
+            }
+            // // this part is optional, it prints the node by node matching
+            // int counter = 1;                         
+            // for (unsigned i = 1; i <= l; ++i){
+            //     if (leftpair[i] != 0){
+            //         std::cout << counter << ".   " << i << " ---> " << leftpair[i] << std::endl;
+            //         counter++;
+            //     }
+            // }
+            // std::cout << std::endl << max_cardinality << std::endl;
+            return max_cardinality;
+        }
+};
+
+int main(){
+    int l, r, m;        // l = num vertices in left partition, r = num vertices in right partition, m = number of undirected edges
+    FILE* fp;
+    fp = fopen("test.txt", "r");            //the graph is randomly generated already in test.txt  . If you haven't done so already, run bipartite_generator
+    fscanf(fp, "%d %d %d", &l, &r, &m);
+    int person1, person2;
+
+    BipartiteG graph = BipartiteG(l, r);
+
+    //take bipartite graph into adjacency lists from the edges listed in test.txt
+    for (unsigned int i = 0; i < m; ++i){
+        fscanf(fp, "%d %d", &person1, &person2);
+        graph.addNewEdge(person1, person2);
     }
     
-    int max_cardinality = 0;
- 
-    // while(1){
+    //use get_time.h to measure runtime of the algorithm (excluding parse time) 
+    int NUM_ROUNDS = 5;
+    double tot_time = 0.0;
+    for (int round = 0; round <= NUM_ROUNDS; round++) {
+        timer t; t.start();
+        int ans = graph.hopcroftkarp();
+        t.stop();
+        double tm = t.get_total();
+        std::cout << "Round " << round << ", time: " << tm << std::endl;
+        std::cout << "Round " << round << ", result: " << ans << std::endl;
+        if (round != 0) tot_time += tm;
+    }
 
-    //     for(unsigned int i = 0; i < left.size(); ++i){
-    //         if (!leftincluded[i]){
-    //             for(unsigned int j = 0; j < left.at(i).size(); ++j){
-    //                 if (!rightincluded[left.at(i).at(j)]){
-    //                     std::pair <int, int> newEdge(i, left.at(i).at(j));
-    //                     leftincluded[i] = 1;
-    //                     rightincluded[left.at(i).at(j)] = 1;
-    //                     break;
-    //                 }
+    std::cout << "Average time: " << tot_time/NUM_ROUNDS << std::endl;
 
-    //             }
-    //         }
-    //     }
-    // }
-    //
-    int counter = 1;
-    for (unsigned i = 0; i < M.size(); ++i){
-        if (M.at(i).second != -1){
-            std::cout << counter << ".   " << M.at(i).first << " ---> " << M.at(i).second << std::endl;
-            counter++;
+    
+    return 0;
+}
+
+
+
+
+bool BipartiteG::bfs(){                       //construct the alternating graph that reveals any augmenting paths
+    std::queue<int> alt_level_graph;          //my alternating level graph stores the free vertices of left partition
+    dist[0] = std::numeric_limits<int>::max();
+    for (int i = 1; i <= l; ++i){   // at top of alternating level graph, everything has distance 0
+        if (leftpair[i] == 0){  
+            dist[i] = 0;
+            alt_level_graph.push(i);                        //populate top level of alternating level tree with free vertices of left partition
+        }
+        else 
+            dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
+    }
+
+    while (!alt_level_graph.empty()) {   //while there are still free left vertices
+        int curr = alt_level_graph.front();   
+        alt_level_graph.pop(); 
+        if (dist[curr] < dist[0]){ 
+            for (unsigned i = 0; i < left.at(curr - 1).size(); ++i){    // Get all adj vertices
+                int nextleftnode = rightpair[left.at(curr-1).at(i)];
+                if (dist[nextleftnode] == std::numeric_limits<int>::max()) //reassign its distance if it was infinite
+                {
+                    dist[nextleftnode] = dist[curr] + 1;
+                    alt_level_graph.push(nextleftnode);
+                }
+            }
         }
     }
-    return 0;
+ 
+    // this value was overwritten if a node from right partition that was unreachable is determined as reachable.
+    // This indicates an augmenting path. In that case we can return the value 'true'
+    return (dist[0] != std::numeric_limits<int>::max());
+}
+
+bool BipartiteG::dfs(int leftnode){         //applies augmenting paths
+    if(leftnode != 0){  //if in matching
+        for (unsigned i = 0; i < left.at(leftnode - 1).size(); ++i){   //traverse adj list
+            int nextleftnode = rightpair[left.at(leftnode - 1).at(i)];     //nextleftnode is a potential 
+            if(dist[nextleftnode] == dist[leftnode] + 1){   
+                if(dfs(nextleftnode)){      //that node has an augmenting path, so leftnode is free to be added to matching! (steals its pair)
+                    rightpair[left.at(leftnode - 1).at(i)] = leftnode;
+                    leftpair[leftnode] = left.at(leftnode - 1).at(i);
+                    return true;
+                }
+            }
+        }
+        dist[leftnode] = std::numeric_limits<int>::max();   //no augmenting path, so it won't be added to matching
+        return false;
+    }
+    else
+        return true;
+
 }
