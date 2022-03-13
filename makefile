@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -O3 -I../c++ -mcx16 -march=native -DCILK -fcilkplus -std=c++17
+CFLAGS = -O2 -I../c++ -mcx16 -march=native -DCILK -fcilkplus -std=c++17
 
 all:	hopcroft-karp
 
