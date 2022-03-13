@@ -10,7 +10,7 @@
 #include "get_time.h"
 
 int nworkers = 4;
-export CILK_NWORKERS = nworkers;
+// export CILK_NWORKERS = nworkers;
 
 class BipartiteG{   
     private:
