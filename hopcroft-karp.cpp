@@ -120,7 +120,7 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
     cilk_for (int i = 1; i <= l; ++i){   // at top of alternating level graph, everything has distance 0
         if (leftpair[i] == 0){  
             dist[i] = 0;
-            queue_vals.at(i).push_back(i);                        //populate top level of alternating level tree with free vertices of left partition
+            queue_vals.at(i%4).push_back(i);                        //populate top level of alternating level tree with free vertices of left partition
         }
         else 
             dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
