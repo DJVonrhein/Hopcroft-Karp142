@@ -129,16 +129,26 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
         std::vector<int> curr;
         queue_vals.push_back(curr);
     }
-    bfs_helper(1,  l / nworkers, queue_vals.at(0));   // at top of alternating level graph, everything has distance 0
-    for (int i = 0; i < nworkers; ++i){}    
-        cilk_spawn bfs_helper((i + 1) * l / nworkers + 1, (i + 2) *  l / nworkers, queue_vals.at(i + 1));
-    }
-    cilk_sync;
-    for(int i = 0; i < nworkers; ++i){
-        for (int j = 0; j < queue_vals.at(i).size(); ++j){
-            alt_level_graph.push(queue_vals.at(i).at(j));
+    for (int i = 1; i <= l; ++i){   // at top of alternating level graph, everything has distance 0
+        if (leftpair[i] == 0){  
+            dist[i] = 0;
+            alt_level_graph.push(i);                        //populate top level of alternating level tree with free vertices of left partition
         }
+        else 
+            dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
     }
+    // //attempt to parallelize 
+    // bfs_helper(1,  l / nworkers, queue_vals.at(0));   // at top of alternating level graph, everything has distance 0
+    // for (int i = 0; i < nworkers; ++i){}    
+    //     cilk_spawn bfs_helper((i + 1) * l / nworkers + 1, (i + 2) *  l / nworkers, queue_vals.at(i + 1));
+    // }
+
+    // cilk_sync;
+    // for(int i = 0; i < nworkers; ++i){
+    //     for (int j = 0; j < queue_vals.at(i).size(); ++j){
+    //         alt_level_graph.push(queue_vals.at(i).at(j));
+    //     }
+    // }
 
     while (!alt_level_graph.empty()) {   //while there are still free left vertices
         int curr = alt_level_graph.front();   
