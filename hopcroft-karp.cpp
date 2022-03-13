@@ -1,4 +1,6 @@
 
+#include <cilk/cilk.h>
+#include <cilk/cilk_api.h>
 #include <iostream>
 #include <vector>
 #include <queue>
@@ -48,7 +50,7 @@ class BipartiteG{
             int max_cardinality = 0;
 
             while(bfs()){                       //while we can make an alternating level tree with augmenting paths
-                for (int i = 1; i <= l; ++i){
+                cilk_for (int i = 1; i <= l; ++i){
                     if(!leftpair[i] && dfs(i)){     //if the vertex is free and can be augmented, do so and increment cardinality 
                         ++max_cardinality;
                     }
