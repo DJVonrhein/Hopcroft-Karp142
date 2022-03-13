@@ -141,7 +141,7 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
     // }
     //attempt to parallelize 
     bfs_helper(1,  l / nworkers, queue_vals.at(0));   // at top of alternating level graph, everything has distance 0
-    for (int i = 0; i < nworkers; ++i){}    
+    for (int i = 0; i < nworkers; ++i){    
         cilk_spawn bfs_helper((i + 1) * l / nworkers + 1, (i + 2) *  l / nworkers, queue_vals.at(i + 1));
     }
 
