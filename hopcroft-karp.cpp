@@ -117,10 +117,34 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
         std::vector<int> curr;
         queue_vals.push_back(curr);
     }
-    cilk_for (int i = 1; i <= l; ++i){   // at top of alternating level graph, everything has distance 0
+    for (int i = 1; i <= l / nworkers; ++i){   // at top of alternating level graph, everything has distance 0
         if (leftpair[i] == 0){  
             dist[i] = 0;
-            queue_vals.at(i%4).push_back(i);                        //populate top level of alternating level tree with free vertices of left partition
+            queue_vals.at(0).push_back(i);                        //populate top level of alternating level tree with free vertices of left partition
+        }
+        else 
+            dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
+    }
+    cilk_spawn for (int i = l / nworkers + 1; i <= 2 *  l / nworkers; ++i){   // at top of alternating level graph, everything has distance 0
+        if (leftpair[i] == 0){  
+            dist[i] = 0;
+            queue_vals.at(1).push_back(i);                        //populate top level of alternating level tree with free vertices of left partition
+        }
+        else 
+            dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
+    }
+    cilk_spawn for (int i = 2 * l / nworkers + 1; i <= 3 *  l / nworkers; ++i){   // at top of alternating level graph, everything has distance 0
+        if (leftpair[i] == 0){  
+            dist[i] = 0;
+            queue_vals.at(2).push_back(i);                        //populate top level of alternating level tree with free vertices of left partition
+        }
+        else 
+            dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
+    }
+    cilk_spawn for (int i = 3 * l / nworkers + 1; i <= 4 *  l / nworkers; ++i){   // at top of alternating level graph, everything has distance 0
+        if (leftpair[i] == 0){  
+            dist[i] = 0;
+            queue_vals.at(3).push_back(i);                        //populate top level of alternating level tree with free vertices of left partition
         }
         else 
             dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
