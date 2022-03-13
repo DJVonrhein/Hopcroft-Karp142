@@ -129,7 +129,7 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
     std::vector<int* > queue_vals;
     for(int i = 0; i < nworkers; ++i){
         int arr[l/nworkers];
-        memset(arr, -1, l/nworkers *sizeof(int));
+        wmemset(arr, -1, l/nworkers *sizeof(int));
         queue_vals.push_back(arr);
     }
     // for (int i = 1; i <= l; ++i){   // at top of alternating level graph, everything has distance 0
