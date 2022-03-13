@@ -40,7 +40,7 @@ class BipartiteG{
         }
 
         bool bfs();
-        void bfs_helper(int start_idx, int end_idx, std::vector<int> & vals){
+        void bfs_helper(int start_idx, int end_idx, int * vals){
             int counter = 0;
             for (int i =  start_idx; i <= end_idx; ++i){   // at top of alternating level graph, everything has distance 0
                 if (leftpair[i] == 0){  
@@ -129,7 +129,7 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
     std::vector<int* > queue_vals;
     for(int i = 0; i < nworkers; ++i){
         int arr[l/nworkers];
-        memset(arr, '-1', l/nworkers *sizeof(int));
+        memset(arr, -1, l/nworkers *sizeof(int));
         queue_vals.push_back(arr);
     }
     // for (int i = 1; i <= l; ++i){   // at top of alternating level graph, everything has distance 0
