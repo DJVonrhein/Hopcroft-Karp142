@@ -50,7 +50,7 @@ class BipartiteG{
             int max_cardinality = 0;
 
             while(bfs()){                       //while we can make an alternating level tree with augmenting paths
-                cilk_for (int i = 1; i <= l; ++i){
+                for (int i = 1; i <= l; ++i){
                     if(!leftpair[i] && dfs(i)){     //if the vertex is free and can be augmented, do so and increment cardinality 
                         ++max_cardinality;
                     }
@@ -109,7 +109,7 @@ int main(){
 bool BipartiteG::bfs(){                       //construct the alternating graph that reveals any augmenting paths
     std::queue<int> alt_level_graph;          //my alternating level graph stores the free vertices of left partition
     dist[0] = std::numeric_limits<int>::max();
-    for (int i = 1; i <= l; ++i){   // at top of alternating level graph, everything has distance 0
+    cilk_for (int i = 1; i <= l; ++i){   // at top of alternating level graph, everything has distance 0
         if (leftpair[i] == 0){  
             dist[i] = 0;
             alt_level_graph.push(i);                        //populate top level of alternating level tree with free vertices of left partition
