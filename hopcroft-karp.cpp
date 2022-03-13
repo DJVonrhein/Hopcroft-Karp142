@@ -130,10 +130,9 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
         queue_vals.push_back(curr);
     }
     bfs_helper(1,  l / nworkers, queue_vals.at(0));   // at top of alternating level graph, everything has distance 0
-        
-    cilk_spawn bfs_helper(l / nworkers + 1, 2 *  l / nworkers, queue_vals.at(1));
-    cilk_spawn bfs_helper( 2 * l / nworkers + 1, 3 *  l / nworkers, queue_vals.at(2));
-    cilk_spawn bfs_helper(3 * l / nworkers + 1, 4 *  l / nworkers, queue_vals.at(3));
+    for (int i = 0; i < nworkers; ++i){}    
+        cilk_spawn bfs_helper((i + 1) * l / nworkers + 1, (i + 2) *  l / nworkers, queue_vals.at(i + 1));
+    }
     cilk_sync;
     for(int i = 0; i < nworkers; ++i){
         for (int j = 0; j < queue_vals.at(i).size(); ++j){
