@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "get_time.h"
 
-CILK_NWORKERS = 4;
+unsigned int CILK_NWORKERS = 4;
 
 
 
