@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "get_time.h"
 
-unsigned int CILK_NWORKERS = 6;
+unsigned int CILK_NWORKERS = 8;
 
 
 
@@ -40,7 +40,7 @@ class BipartiteG{
         }
 
         bool bfs();
-        void bfs_helper(int start_idx, int end_idx, int * vals){
+        void bfs_helper(int start_idx, int end_idx, int * vals){ //only used for parallelizing a single loop in bfs that iterates through all of leftpair[]
             int counter = 0;
             for (int i =  start_idx; i <= end_idx; ++i){   // at top of alternating level graph, everything has distance 0
                 if (leftpair[i] == 0){  
