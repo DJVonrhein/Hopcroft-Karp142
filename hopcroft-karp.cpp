@@ -64,9 +64,9 @@ class BipartiteG{
                 leftpair[i] = 0;                // initially 0 (not in matching)
             }
             dist = new int[l + 1];
-            // for(unsigned i = 0; i <= l; ++i){                    
-            //     dist[i] = std::numeric_limits<int>::max();                // initially 'infinitely far'
-            // }
+            for(unsigned i = 0; i <= l; ++i){                    
+                dist[i] = std::numeric_limits<int>::max();                // initially 'infinitely far'
+            }
             int max_cardinality = 0;
 
             while(bfs()){                       //while we can make an alternating level tree with augmenting paths
