@@ -64,9 +64,9 @@ class BipartiteG{
                 leftpair[i] = 0;                // initially 0 (not in matching)
             }
             dist = new int[l + 1];
-            for(unsigned i = 0; i <= l; ++i){                    
-                dist[i] = std::numeric_limits<int>::max();                // initially 'infinitely far'
-            }
+            // for(unsigned i = 0; i <= l; ++i){                    
+            //     dist[i] = std::numeric_limits<int>::max();                // initially 'infinitely far'
+            // }
             int max_cardinality = 0;
 
             while(bfs()){                       //while we can make an alternating level tree with augmenting paths
@@ -133,7 +133,7 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
     std::vector<int* > queue_vals;
     for(int i = 0; i < CILK_NWORKERS; ++i){
         int* arr = (int*)malloc(l/CILK_NWORKERS * sizeof(int));
-        std::fill_n (arr, l/CILK_NWORKERS, -1);
+        // std::fill_n (arr, l/CILK_NWORKERS, -1);
         queue_vals.push_back(arr);
     }
     // for (int i = 1; i <= l; ++i){   // at top of alternating level graph, everything has distance 0
