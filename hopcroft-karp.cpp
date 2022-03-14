@@ -7,6 +7,7 @@
 #include <limits>
 #include <cstdlib>
 #include <stdio.h>
+#include <algorithm>
 #include "get_time.h"
 
 unsigned int CILK_NWORKERS = 8;
@@ -132,6 +133,7 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
     std::vector<int* > queue_vals;
     for(int i = 0; i < CILK_NWORKERS; ++i){
         int* arr = (int*)malloc(l/CILK_NWORKERS * sizeof(int));
+        std::fill_n (arr, l/CILK_NWORKERS, -1);
         queue_vals.push_back(arr);
     }
     for (int i = 1; i <= l; ++i){   // at top of alternating level graph, everything has distance 0
