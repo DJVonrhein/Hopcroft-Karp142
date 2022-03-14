@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "get_time.h"
 
-unsigned int CILK_NWORKERS = 8;
+unsigned int CILK_NWORKERS = 6;
 
 
 
@@ -32,6 +32,7 @@ class BipartiteG{
                 std::vector<int> adjacencyList;
                 //right.push_back(adjacencyList);
             }
+
         }
         void addNewEdge(int leftnode, int rightnode){
             left.at(leftnode - 1).push_back(rightnode);
@@ -62,7 +63,9 @@ class BipartiteG{
                 leftpair[i] = 0;                // initially 0 (not in matching)
             }
             dist = new int[l + 1];
-            
+            for(unsigned i = 0; i <= l; ++i){                    
+                dist[i] = std::numeric_limits<int>::max();                // initially 'infinitely far'
+            }
             int max_cardinality = 0;
 
             while(bfs()){                       //while we can make an alternating level tree with augmenting paths
@@ -123,7 +126,7 @@ int main(){
 
 
 bool BipartiteG::bfs(){                       //construct the alternating graph that reveals any augmenting paths
-    std::cout << "enter bfs  ";
+    // std::cout << "enter bfs  ";
     std::queue<int> alt_level_graph;          //my alternating level graph stores the free vertices of left partition
     dist[0] = std::numeric_limits<int>::max();
     std::vector<int* > queue_vals;
@@ -176,7 +179,7 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
 }
 
 bool BipartiteG::dfs(int leftnode){         //applies augmenting paths
-    std::cout << "enter dfs  ";
+    // std::cout << "enter dfs  ";
     if(leftnode != 0){  //if in matching
         for (unsigned i = 0; i < left.at(leftnode - 1).size(); ++i){   //traverse adj list
             int nextleftnode = rightpair[left.at(leftnode - 1).at(i)];     //nextleftnode is a potential 
