@@ -123,6 +123,7 @@ int main(){
 
 
 bool BipartiteG::bfs(){                       //construct the alternating graph that reveals any augmenting paths
+    std::cout << "enter bfs  ";
     std::queue<int> alt_level_graph;          //my alternating level graph stores the free vertices of left partition
     dist[0] = std::numeric_limits<int>::max();
     std::vector<int* > queue_vals;
@@ -175,6 +176,7 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
 }
 
 bool BipartiteG::dfs(int leftnode){         //applies augmenting paths
+    std::cout << "enter dfs  ";
     if(leftnode != 0){  //if in matching
         for (unsigned i = 0; i < left.at(leftnode - 1).size(); ++i){   //traverse adj list
             int nextleftnode = rightpair[left.at(leftnode - 1).at(i)];     //nextleftnode is a potential 
