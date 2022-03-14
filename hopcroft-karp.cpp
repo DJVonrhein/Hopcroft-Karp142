@@ -9,8 +9,7 @@
 #include <stdio.h>
 #include "get_time.h"
 
-// int nworkers = 4;
-// export CILK_NWORKERS = nworkers;
+CILK_NWORKERS = 4;
 
 
 
