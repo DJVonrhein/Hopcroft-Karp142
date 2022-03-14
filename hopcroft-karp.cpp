@@ -1,3 +1,32 @@
+\Skip to content
+Search or jump to…
+Pull requests
+Issues
+Marketplace
+Explore
+ 
+@DJVonrhein 
+DJVonrhein
+/
+Hopcroft-Karp142
+Public
+Code
+Issues
+Pull requests
+Actions
+Projects
+Wiki
+Security
+Insights
+Settings
+Hopcroft-Karp142/hopcroft-karp.cpp
+@DJVonrhein
+DJVonrhein timing with 7* 10^6 V each and 2.5 * 10^7 E for parallel
+Latest commit 9bda52a 2 hours ago
+ History
+ 1 contributor
+202 lines (175 sloc)  7.97 KB
+   
 
 #include <cilk/cilk.h>
 #include <cilk/cilk_api.h>
@@ -9,7 +38,7 @@
 #include <stdio.h>
 #include "get_time.h"
 
-unsigned int CILK_NWORKERS = 4;
+unsigned int CILK_NWORKERS = 6;
 
 
 
@@ -32,6 +61,7 @@ class BipartiteG{
                 std::vector<int> adjacencyList;
                 //right.push_back(adjacencyList);
             }
+
         }
         void addNewEdge(int leftnode, int rightnode){
             left.at(leftnode - 1).push_back(rightnode);
@@ -62,7 +92,9 @@ class BipartiteG{
                 leftpair[i] = 0;                // initially 0 (not in matching)
             }
             dist = new int[l + 1];
-            
+            for(unsigned i = 0; i <= l; ++i){                    
+                dist[i] = std::numeric_limits<int>::max();                // initially 'infinitely far'
+            }
             int max_cardinality = 0;
 
             while(bfs()){                       //while we can make an alternating level tree with augmenting paths
@@ -123,6 +155,7 @@ int main(){
 
 
 bool BipartiteG::bfs(){                       //construct the alternating graph that reveals any augmenting paths
+    // std::cout << "enter bfs  ";
     std::queue<int> alt_level_graph;          //my alternating level graph stores the free vertices of left partition
     dist[0] = std::numeric_limits<int>::max();
     std::vector<int* > queue_vals;
@@ -130,29 +163,29 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
         int* arr = (int*)malloc(l/CILK_NWORKERS * sizeof(int));
         queue_vals.push_back(arr);
     }
-    // for (int i = 1; i <= l; ++i){   // at top of alternating level graph, everything has distance 0
-    //     if (leftpair[i] == 0){  
-    //         dist[i] = 0;
-    //         alt_level_graph.push(i);                        //populate top level of alternating level tree with free vertices of left partition
-    //     }
-    //     else 
-    //         dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
-    // }
-    //attempt to parallelize 
-    bfs_helper(1,  l / CILK_NWORKERS, queue_vals.at(0));   // at top of alternating level graph, everything has distance 0
-    for (int i = 0; i < CILK_NWORKERS - 1; ++i){    
-        cilk_spawn bfs_helper((i + 1) * l / CILK_NWORKERS + 1, (i + 2) *  l / CILK_NWORKERS, queue_vals.at(i + 1));
-    }
-
-    cilk_sync;
-    for(int i = 0; i < CILK_NWORKERS; ++i){
-        for (int j = 0; j < l / CILK_NWORKERS; ++j){
-            if(queue_vals.at(i)[j])
-                alt_level_graph.push(queue_vals.at(i)[j]);
-            else
-                break;
+    for (int i = 1; i <= l; ++i){   // at top of alternating level graph, everything has distance 0
+        if (leftpair[i] == 0){  
+            dist[i] = 0;
+            alt_level_graph.push(i);                        //populate top level of alternating level tree with free vertices of left partition
         }
+        else 
+            dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
     }
+    //attempt to parallelize 
+    // bfs_helper(1,  l / CILK_NWORKERS, queue_vals.at(0));   // at top of alternating level graph, everything has distance 0
+    // for (int i = 1; i < CILK_NWORKERS; ++i){    
+    //     cilk_spawn bfs_helper(i * l / CILK_NWORKERS + 1, (i + 1) *  l / CILK_NWORKERS, queue_vals.at(i));
+    // }
+
+    // cilk_sync;
+    // for(int i = 0; i < CILK_NWORKERS; ++i){
+    //     for (int j = 0; j < l / CILK_NWORKERS; ++j){
+    //         if(queue_vals.at(i)[j])
+    //             alt_level_graph.push(queue_vals.at(i)[j]);
+    //         else
+    //             break;
+    //     }
+    // }
 
     while (!alt_level_graph.empty()) {   //while there are still free left vertices
         int curr = alt_level_graph.front();   
@@ -175,6 +208,7 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
 }
 
 bool BipartiteG::dfs(int leftnode){         //applies augmenting paths
+    // std::cout << "enter dfs  ";
     if(leftnode != 0){  //if in matching
         for (unsigned i = 0; i < left.at(leftnode - 1).size(); ++i){   //traverse adj list
             int nextleftnode = rightpair[left.at(leftnode - 1).at(i)];     //nextleftnode is a potential 
@@ -193,5 +227,3 @@ bool BipartiteG::dfs(int leftnode){         //applies augmenting paths
         return true;
 
 }
-
-
