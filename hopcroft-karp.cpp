@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "get_time.h"
 
-unsigned int CILK_NWORKERS = 5;
+unsigned int CILK_NWORKERS = 8;
 
 
 
@@ -130,29 +130,29 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
         int* arr = (int*)malloc(l/CILK_NWORKERS * sizeof(int));
         queue_vals.push_back(arr);
     }
-    for (int i = 1; i <= l; ++i){   // at top of alternating level graph, everything has distance 0
-        if (leftpair[i] == 0){  
-            dist[i] = 0;
-            alt_level_graph.push(i);                        //populate top level of alternating level tree with free vertices of left partition
-        }
-        else 
-            dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
-    }
-    //attempt to parallelize 
-    // bfs_helper(1,  l / CILK_NWORKERS, queue_vals.at(0));   // at top of alternating level graph, everything has distance 0
-    // for (int i = 1; i < CILK_NWORKERS; ++i){    
-    //     cilk_spawn bfs_helper(i * l / CILK_NWORKERS + 1, (i + 1) *  l / CILK_NWORKERS, queue_vals.at(i));
-    // }
-
-    // cilk_sync;
-    // for(int i = 0; i < CILK_NWORKERS; ++i){
-    //     for (int j = 0; j < l / CILK_NWORKERS; ++j){
-    //         if(queue_vals.at(i)[j])
-    //             alt_level_graph.push(queue_vals.at(i)[j]);
-    //         else
-    //             break;
+    // for (int i = 1; i <= l; ++i){   // at top of alternating level graph, everything has distance 0
+    //     if (leftpair[i] == 0){  
+    //         dist[i] = 0;
+    //         alt_level_graph.push(i);                        //populate top level of alternating level tree with free vertices of left partition
     //     }
+    //     else 
+    //         dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
     // }
+    //attempt to parallelize 
+    bfs_helper(1,  l / CILK_NWORKERS, queue_vals.at(0));   // at top of alternating level graph, everything has distance 0
+    for (int i = 1; i < CILK_NWORKERS; ++i){    
+        cilk_spawn bfs_helper(i * l / CILK_NWORKERS + 1, (i + 1) *  l / CILK_NWORKERS, queue_vals.at(i));
+    }
+
+    cilk_sync;
+    for(int i = 0; i < CILK_NWORKERS; ++i){
+        for (int j = 0; j < l / CILK_NWORKERS; ++j){
+            if(queue_vals.at(i)[j])
+                alt_level_graph.push(queue_vals.at(i)[j]);
+            else
+                break;
+        }
+    }
 
     while (!alt_level_graph.empty()) {   //while there are still free left vertices
         int curr = alt_level_graph.front();   
