@@ -29,10 +29,10 @@ class BipartiteG{
                 left.push_back(adjacencyList);
             }
             r = rightsize;
-            for (unsigned int i = 0; i < r; ++i){
-                std::vector<int> adjacencyList;
+            // for (unsigned int i = 0; i < r; ++i){
+            //     std::vector<int> adjacencyList;
                 //right.push_back(adjacencyList);
-            }
+            // }
 
         }
         void addNewEdge(int leftnode, int rightnode){

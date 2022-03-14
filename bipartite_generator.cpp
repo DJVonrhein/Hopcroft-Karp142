@@ -4,7 +4,7 @@
 
 int main(){
     int l, r, m;
-    l = 7000000; r = 7000000; m = 25000000;
+    l = 1000000; r = 1000000; m = 3000000;
     srand(5);
     std::ofstream str;
     str.open("test.txt");
