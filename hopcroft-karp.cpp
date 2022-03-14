@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "get_time.h"
 
-int nworkers = 4;
+// int nworkers = 4;
 // export CILK_NWORKERS = nworkers;
 
 
@@ -127,8 +127,8 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
     std::queue<int> alt_level_graph;          //my alternating level graph stores the free vertices of left partition
     dist[0] = std::numeric_limits<int>::max();
     std::vector<int* > queue_vals;
-    for(int i = 0; i < nworkers; ++i){
-        int* arr = (int*)malloc(l/nworkers * sizeof(int));
+    for(int i = 0; i < CILK_NWORKERS; ++i){
+        int* arr = (int*)malloc(l/CILK_NWORKERS * sizeof(int));
         queue_vals.push_back(arr);
     }
     // for (int i = 1; i <= l; ++i){   // at top of alternating level graph, everything has distance 0
@@ -140,14 +140,14 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
     //         dist[i] = std::numeric_limits<int>::max();      //else consider it 'infinitely far'
     // }
     //attempt to parallelize 
-    bfs_helper(1,  l / nworkers, queue_vals.at(0));   // at top of alternating level graph, everything has distance 0
-    for (int i = 0; i < nworkers - 1; ++i){    
-        cilk_spawn bfs_helper((i + 1) * l / nworkers + 1, (i + 2) *  l / nworkers, queue_vals.at(i + 1));
+    bfs_helper(1,  l / CILK_NWORKERS, queue_vals.at(0));   // at top of alternating level graph, everything has distance 0
+    for (int i = 0; i < CILK_NWORKERS - 1; ++i){    
+        cilk_spawn bfs_helper((i + 1) * l / CILK_NWORKERS + 1, (i + 2) *  l / CILK_NWORKERS, queue_vals.at(i + 1));
     }
 
     cilk_sync;
-    for(int i = 0; i < nworkers; ++i){
-        for (int j = 0; j < l / nworkers; ++j){
+    for(int i = 0; i < CILK_NWORKERS; ++i){
+        for (int j = 0; j < l / CILK_NWORKERS; ++j){
             if(queue_vals.at(i)[j])
                 alt_level_graph.push(queue_vals.at(i)[j]);
             else
