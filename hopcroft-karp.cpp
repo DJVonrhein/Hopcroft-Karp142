@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "get_time.h"
 
-unsigned int CILK_NWORKERS = 4;
+unsigned int CILK_NWORKERS = 5;
 
 
 
@@ -140,8 +140,8 @@ bool BipartiteG::bfs(){                       //construct the alternating graph 
     // }
     //attempt to parallelize 
     bfs_helper(1,  l / CILK_NWORKERS, queue_vals.at(0));   // at top of alternating level graph, everything has distance 0
-    for (int i = 0; i < CILK_NWORKERS - 1; ++i){    
-        cilk_spawn bfs_helper((i + 1) * l / CILK_NWORKERS + 1, (i + 2) *  l / CILK_NWORKERS, queue_vals.at(i + 1));
+    for (int i = 1; i < CILK_NWORKERS; ++i){    
+        cilk_spawn bfs_helper(i * l / CILK_NWORKERS + 1, (i + 1) *  l / CILK_NWORKERS, queue_vals.at(i));
     }
 
     cilk_sync;
